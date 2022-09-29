@@ -378,7 +378,7 @@ public class SwiftHealthPlugin: NSObject, FlutterPlugin {
         let dateTo = Date(timeIntervalSince1970: endTime.doubleValue / 1000)
         
         let dataType = dataTypeLookUp(key: dataTypeKey)
-        
+        // ignore manual steps that pradicate1
         let predicate1 = HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: .strictStartDate)
         let predicate2 = NSPredicate(format: "metadata.%K != NO", HKMetadataKeyWasUserEntered)
         let compoundPredicate = NSCompoundPredicate(type: .and, subpredicates: [predicate1, predicate2])
