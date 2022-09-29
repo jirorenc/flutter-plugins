@@ -379,10 +379,12 @@ public class SwiftHealthPlugin: NSObject, FlutterPlugin {
         
         let dataType = dataTypeLookUp(key: dataTypeKey)
         
-        let predicate = HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: .strictStartDate)
+        let predicate1 = HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: .strictStartDate)
+        let predicate2 = NSPredicate(format: "metadata.%K != NO", HKMetadataKeyWasUserEntered)
+        let compoundPredicate = NSCompoundPredicate(type: .and, subpredicates: [predicate1, predicate2])
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-        
-        let query = HKSampleQuery(sampleType: dataType, predicate: predicate, limit: limit, sortDescriptors: [sortDescriptor]) { [self]
+        	
+        let query = HKSampleQuery(sampleType: dataType, predicate: compoundPredicate, limit: limit, sortDescriptors: [sortDescriptor]) { [self]
             x, samplesOrNil, error in
             
             switch samplesOrNil {
@@ -507,10 +509,12 @@ public class SwiftHealthPlugin: NSObject, FlutterPlugin {
         let dateTo = Date(timeIntervalSince1970: endTime.doubleValue / 1000)
         
         let sampleType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
-        let predicate = HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: .strictStartDate)
-        
+        let predicate1 = HKQuery.predicateForSamples(withStart: dateFrom, end: dateTo, options: .strictStartDate)
+        let predicate2 = NSPredicate(format: "metadata.%K != NO", HKMetadataKeyWasUserEntered)
+        let compoundPredicate = NSCompoundPredicate(type: .and, subpredicates: [predicate1, predicate2])
+
         let query = HKStatisticsQuery(quantityType: sampleType,
-                                      quantitySamplePredicate: predicate,
+                                      quantitySamplePredicate: compoundPredicate,
                                       options: .cumulativeSum) { query, queryResult, error in
             
             guard let queryResult = queryResult else {
